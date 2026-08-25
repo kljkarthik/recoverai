@@ -150,12 +150,13 @@ def trigger_decision(workflow_id: str, db: Session = Depends(get_db)):
         transaction_id=tx.id,
         event_type="FAILURE_CLASSIFIED",
         actor="system",
-        decision="CLASSIFIED",
+        decision=workflow.failure_category,
         action="CLASSIFY_FAILURE",
         reason=f"Failure classified as '{workflow.failure_category}'.",
         status_result=workflow.failure_category
     )
     db.add(audit_classified)
+
 
     # 2. Decision Engine Recommendation
     engine = get_decision_engine()

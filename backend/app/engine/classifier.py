@@ -18,8 +18,9 @@ class FailureClassifier:
         reason_lower = failure_reason.lower().strip()
 
         # Temporary Payment Degradation
-        if any(term in reason_lower for term in ["gateway_timeout", "bank_processing_error", "system_busy", "temporary_bank_error", "degradation"]):
+        if any(term in reason_lower for term in ["gateway_timeout", "bank_processing_error", "system_busy", "temporary_bank_error", "degradation", "payment_failed", "payment_error", "bad_request_error", "razorpay_failed"]):
             return cls.TEMPORARY_DEGRADATION
+
 
         # Insufficient Funds
         if any(term in reason_lower for term in ["insufficient_funds", "low_balance", "credit_limit_exceeded", "balance_low"]):
