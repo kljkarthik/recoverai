@@ -197,6 +197,8 @@ def test_recovery_metrics_api(client):
     assert "successful_recoveries" in metrics
     assert "recovery_rate" in metrics
     assert "revenue_recovered" in metrics
+    assert 0.0 <= metrics["recovery_rate"] <= 100.0
+
 
 
 # --- 5. Audit Log Traceability Test ---

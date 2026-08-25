@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, func, Integer
 from app.database.session import get_db
 from app.models.transaction import Transaction
+from app.models.recovery_workflow import RecoveryWorkflow
 from app.models.recovery_attempt import RecoveryAttempt
 from app.schemas.recovery import RecoveryMetricsResponse
+
 
 router = APIRouter()
 
@@ -13,11 +15,17 @@ router = APIRouter()
 def get_recovery_metrics(db: Session = Depends(get_db)):
     """Computes aggregate real-time revenue recovery metrics across all transactions and workflows."""
     
+    # Subquery for transactions that have initiated recovery workflows
+    wf_tx_subquery = select(RecoveryWorkflow.transaction_id)
+
     # 1. Total failed/abandoned transactions & revenue at risk
+    # Includes currently failed/abandoned transactions AND transactions that entered recovery workflows
     tx_stmt = select(
         func.count(Transaction.id).label("total_failed"),
         func.coalesce(func.sum(Transaction.amount), Decimal("0.00")).label("at_risk")
-    ).where(Transaction.status.in_(["failed", "abandoned"]))
+    ).where(
+        Transaction.status.in_(["failed", "abandoned"]) | Transaction.id.in_(wf_tx_subquery)
+    )
     tx_res = db.execute(tx_stmt).one()
     total_failed = tx_res.total_failed or 0
     at_risk = Decimal(str(tx_res.at_risk or 0))
@@ -36,8 +44,9 @@ def get_recovery_metrics(db: Session = Depends(get_db)):
     ).where(RecoveryAttempt.success == True)
     revenue_recovered = Decimal(str(db.scalar(recovered_stmt) or 0))
 
-    # 5. Recovery rate percentage
-    recovery_rate = float((successful_count / total_failed * 100.0)) if total_failed > 0 else 0.0
+    # 5. Recovery rate percentage (strictly bounded between 0.0% and 100.0%)
+    raw_rate = (successful_count / total_failed * 100.0) if total_failed > 0 else 0.0
+    recovery_rate = max(0.0, min(100.0, float(raw_rate)))
 
     return RecoveryMetricsResponse(
         revenue_at_risk=at_risk,
@@ -47,3 +56,4 @@ def get_recovery_metrics(db: Session = Depends(get_db)):
         revenue_recovered=revenue_recovered,
         total_failed_transactions=total_failed
     )
+
