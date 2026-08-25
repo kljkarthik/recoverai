@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import field_validator, ConfigDict
+
+# Compute root project directory containing the top-level .env file
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+ENV_FILE_PATH = ROOT_DIR / ".env"
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "RecoverAI — Autonomous Revenue Recovery Agent"
@@ -23,6 +28,10 @@ class Settings(BaseSettings):
     LLM_TEMPERATURE: float = 0.1
     LLM_MIN_CONFIDENCE: float = 0.60
     LLM_ENABLE_FALLBACK: bool = True
+
+    # Razorpay Test Mode Configuration
+    RAZORPAY_KEY_ID: str | None = None
+    RAZORPAY_KEY_SECRET: str | None = None
     
     # PostgreSQL Configuration
     POSTGRES_USER: str = "postgres"
@@ -50,9 +59,10 @@ class Settings(BaseSettings):
         return "postgresql+psycopg://postgres:postgres_password_placeholder@localhost:5432/recoverai_test_db"
 
     model_config = ConfigDict(
-        env_file=".env",
+        env_file=(str(ENV_FILE_PATH), ".env"),
         env_file_encoding="utf-8",
         extra="ignore"
     )
+
 
 settings = Settings()

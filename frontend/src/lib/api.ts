@@ -1,7 +1,19 @@
 import axios from 'axios';
-import { RecoveryMetrics, Transaction, Customer, RecoveryWorkflow, Decision, Attempt, AuditLog } from './types';
+import {
+  RecoveryMetrics, Transaction, Customer, RecoveryWorkflow, Decision, Attempt, AuditLog,
+  RazorpayOrder, RazorpayVerifyResult, RazorpayFailureResult
+} from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const getApiBaseUrl = (): string => {
+  const rawUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+  const cleanUrl = rawUrl.trim().replace(/\/+$/, '');
+  if (cleanUrl.endsWith('/api/v1')) {
+    return cleanUrl;
+  }
+  return `${cleanUrl}/api/v1`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -10,6 +22,7 @@ const apiClient = axios.create({
   },
   timeout: 10000,
 });
+
 
 export const api = {
   // Health
@@ -87,5 +100,30 @@ export const api = {
   simulateScenario: async (scenario_type: string) => {
     const res = await apiClient.post('/demo/simulate-scenario', { scenario_type });
     return res.data;
+  },
+
+  // Razorpay Test Mode Integration
+  createRazorpayOrder: async (amount: number, currency: string = "INR", receipt?: string): Promise<RazorpayOrder> => {
+    const res = await apiClient.post('/razorpay/orders', { amount, currency, receipt });
+    return res.data;
+  },
+
+  verifyRazorpayPayment: async (payload: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }): Promise<RazorpayVerifyResult> => {
+    const res = await apiClient.post('/razorpay/verify', payload);
+    return res.data;
+  },
+
+  reportRazorpayFailure: async (payload: {
+    razorpay_order_id?: string;
+    razorpay_payment_id?: string;
+    error_code?: string;
+    error_description?: string;
+    error_reason?: string;
+    amount?: number;
+    payment_method?: string;
+  }): Promise<RazorpayFailureResult> => {
+    const res = await apiClient.post('/razorpay/report-failure', payload);
+    return res.data;
   }
 };
+

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import health, transactions, workflows, metrics, audit_logs, customers, demo
+from app.api.routes import health, transactions, workflows, metrics, audit_logs, customers, demo, razorpay
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -29,6 +29,7 @@ app.include_router(metrics.router, prefix=settings.API_V1_STR, tags=["Recovery M
 app.include_router(audit_logs.router, prefix=settings.API_V1_STR, tags=["Audit Logs"])
 app.include_router(customers.router, prefix=settings.API_V1_STR, tags=["Customers"])
 app.include_router(demo.router, prefix=settings.API_V1_STR, tags=["Interactive Demo Studio"])
+app.include_router(razorpay.router, prefix=settings.API_V1_STR, tags=["Razorpay Integration"])
 
 @app.get("/", include_in_schema=False)
 def root():

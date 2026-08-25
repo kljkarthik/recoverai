@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { DemoScenarioCard } from '@/components/DemoScenarioCard';
+import { RazorpayTestSection } from '@/components/RazorpayTestSection';
 import { PlayCircle, Sparkles, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -59,12 +60,21 @@ export default function DemoPage() {
           </div>
 
           <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
-            1-Click Autonomous Scenario Runner
+            1-Click Autonomous Scenario Runner & Razorpay Test Studio
           </h1>
           <p className="text-sm text-slate-300 leading-relaxed mb-6">
-            Demonstrate RecoverAI's end-to-end 7-step pipeline in real-time. Each scenario creates synthetic transaction telemetry, invokes the LLM decision engine, passes through PolicyEngine safety guardrails, and updates recovery audit logs.
+            Demonstrate RecoverAI's end-to-end 7-step pipeline in real-time with synthetic scenarios and live Razorpay Test Mode payments. Each scenario creates transaction telemetry, invokes the LLM decision engine, passes through PolicyEngine safety guardrails, and updates recovery audit logs.
           </p>
         </div>
+      </div>
+
+      {/* Razorpay Test Mode Section */}
+      <RazorpayTestSection />
+
+      {/* Scenarios Grid Header */}
+      <div className="pt-4 border-t border-slate-800">
+        <h2 className="text-xl font-bold text-white mb-1">Synthetic Failure Scenarios</h2>
+        <p className="text-xs text-slate-400 mb-6">1-Click pre-configured scenario simulation suite for edge cases and safety guardrails.</p>
       </div>
 
       {/* Scenarios Grid */}
@@ -118,3 +128,4 @@ export default function DemoPage() {
     </div>
   );
 }
+

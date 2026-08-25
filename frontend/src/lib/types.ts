@@ -107,3 +107,35 @@ export interface AuditLog {
   metadata_json?: Record<string, any>;
   timestamp: string;
 }
+
+export interface RazorpayOrder {
+  order_id: string;
+  amount: number;
+  amount_paise: number;
+  currency: string;
+  key_id: string;
+}
+
+export interface RazorpayVerifyResult {
+  status: string;
+  verified: boolean;
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  message: string;
+}
+
+export interface RazorpayFailureResult {
+  status: string;
+  transaction_id: string;
+  workflow_id: string;
+  failure_category: string;
+  recommended_strategy: string;
+  final_strategy: string;
+  policy_result: string;
+  ai_confidence: number;
+  ai_reasoning: string;
+  attempt_recorded: boolean;
+  attempt_success?: boolean;
+  amount_recovered: number;
+}
+
